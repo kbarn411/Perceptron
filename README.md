@@ -10,3 +10,6 @@ Data are processed and perceptron is trained in a way:
 - random initialization of weights
 - gradient algorithm used to optimize weights
 - denormalizing data to show predictions for val set
+
+## Example Dataset
+For demonstration purpose dataset of simple addition of integers is provided. Goal is to teach perceptron how to add numbers
