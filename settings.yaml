@@ -1,0 +1,5 @@
+lr: 0.01
+function: 'tanh'
+epochs: 100
+split: 0.2
+loss: 'rmse'
