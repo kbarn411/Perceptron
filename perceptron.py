@@ -5,11 +5,19 @@ import csv
 
 class Perceptron:
     def __init__(self, path_to_file_params=None):
+        '''
+        Single perceptron class with dim inputs and 1 output
+        Some parameters like learning rate, activation function and train/test split
+        are specified in yaml file.
+        '''
+
         if path_to_file_params:
             with open(path_to_file_params, 'r') as f:
                 data = yaml.load(f, Loader=yaml.loader.SafeLoader)
         else:
             data = None
+        
+        #parameters with default values in case of no yaml file provided by user
         params = {
             'lr': data.get('lr', 0.1) if data else 0.1,
             'function': data.get('function', 'tanh') if data else 'tanh',
@@ -19,7 +27,16 @@ class Perceptron:
         }
         self.__dict__.update(params)
         random.seed(42)
+
     def calc_activ(self, x: float) -> float:
+        '''
+        activation function calculation
+        Parameters:
+            x (float) - point to calculate
+        Returns:
+            res (float) - value of a function
+        '''
+
         if self.function == 'relu':
             res = 0 if x <= 0 else x
         elif self.function == 'sigmoid':
@@ -29,7 +46,16 @@ class Perceptron:
         else:
             raise ValueError('Unknown activation function')
         return res
+
     def calc_derivative(self, x: float) -> float:
+        '''
+        derivative of activation function needed for gradient method
+        input:
+            x (float) - point to calculate derivative
+        Returns:
+            res (float) - value of a function
+        '''
+
         if self.function == 'relu':
             res = 0 if x <= 0 else 1
         elif self.function == 'sigmoid':
@@ -39,12 +65,22 @@ class Perceptron:
         else:
             raise ValueError('Unknown activation function')
         return res
+    
     def read_data(self, path_to_file_data):
+        '''
+        Function to read data from csv file
+        '''
+
         with open(path_to_file_data, 'r') as f:
             data = csv.reader(f, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
             data = list(data)
         self.data = data
+
     def normalize(self):
+        '''
+        data normalization to 0-1
+        '''
+
         minmax = list()
         for i in range(len(self.data[0])):
             col_values = [row[i] for row in self.data]
@@ -62,7 +98,12 @@ class Perceptron:
         self.data_Y = Y
         self.dim = len(X[0])
         self.minmax = minmax
+
     def split_data(self):
+        '''
+        split data to train and validation splits
+        '''
+
         validation_size = int(self.split*len(self.data_X))
         indexes = random.choices(range(len(self.data_X)), k=validation_size)
         X_tra, Y_tra, X_val, Y_val = [], [], [], []
@@ -77,19 +118,44 @@ class Perceptron:
         self.Y_tra = Y_tra
         self.X_val = X_val
         self.Y_val = Y_val
+
     def calc(self, x):
+        '''
+        calculation of return from perceptron
+        Parameters:
+            x - input vector
+        Returns:
+            sum - value after summation of weights and inputs (float)
+            f - value of sum after activation function operation (float)
+        '''
+
         sum = 0
         for j in range(self.dim):
             sum += self.weights[j] * x[j]
         f = self.calc_activ(sum)
         return f, sum
+
     def calc_loss(self, y_tru, y_pred):
+        '''
+        loss function calculation
+        Parameters:
+            y_tru - real value of y target variable
+            y_pred - value predicted by a perceptron
+        Returns:
+            loss - loss value (float)
+        '''
+
         if self.loss == 'rmse':
             loss = (y_tru - y_pred)**2
         if self.loss == 'mae':
             loss = abs(y_tru - y_pred)
         return loss
+
     def train(self):
+        '''
+        Function which performs training
+        '''
+
         self.normalize()
         self.split_data()
         self.weights = [random.random() for i in range(self.dim)]
